@@ -1,0 +1,36 @@
+name: Crear APK Android
+
+on:
+  workflow_dispatch:
+  push:
+    paths:
+      - "Botanas_Rancho_Los_Coyotes_Proyecto_Android.zip"
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Descargar proyecto
+        uses: actions/checkout@v4
+
+      - name: Preparar Java
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: "17"
+
+      - name: Descomprimir proyecto
+        run: |
+          unzip Botanas_Rancho_Los_Coyotes_Proyecto_Android.zip -d proyecto
+          find proyecto -name gradlew -exec chmod +x {} \;
+
+      - name: Compilar APK
+        run: |
+          cd proyecto
+          ./gradlew assembleDebug
+
+      - name: Guardar APK
+        uses: actions/upload-artifact@v4
+        with:
+          name: Botanas-Rancho-Los-Coyotes-APK
+          path: proyecto/**/build/outputs/apk/debug/*.apk
